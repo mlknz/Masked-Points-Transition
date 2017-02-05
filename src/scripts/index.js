@@ -24,7 +24,7 @@ class App {
         this.initGlState();
 
         // this.makeImageRequest('http://localhost:9000/assets/images/test4.pbm');
-        this.makeImageRequest('https://github.com/mlknz/Masked-Points-Transition/blob/master/src/assets/images/test4.pbm');
+        this.makeImageRequest('https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm');
 
         this.animate();
     }
