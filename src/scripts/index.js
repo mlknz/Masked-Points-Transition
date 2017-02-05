@@ -23,12 +23,10 @@ class App {
         }
         this.initGlState();
 
-        this.points = new Points(gl);
+        // this.makeImageRequest('http://localhost:9000/assets/images/test4.pbm');
+        this.makeImageRequest('https://github.com/mlknz/Masked-Points-Transition/blob/master/src/assets/images/test4.pbm');
 
         this.animate();
-
-        // this.makeImageRequest('https://github.com/mlknz/Masked-Points-Transition/blob/master/src/assets/images/test.pbm');
-        this.makeImageRequest('http://localhost:9000/assets/images/test.pbm');
     }
 
     initGlState() {
@@ -45,7 +43,7 @@ class App {
         if (canvas.width !== width || canvas.height !== height) {
             canvas.width = width;
             canvas.height = height;
-            this.points.resize();
+            if (this.points) this.points.resize();
         }
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
@@ -58,9 +56,11 @@ class App {
         time = (new Date()).getTime();
         time = (time - Math.floor(time / 1000000) * 1000000) / 1000;
 
-        gl.useProgram(self.points.shaderProgram);
-        self.points.update(time);
-        self.points.render();
+        if (self.points) {
+            gl.useProgram(self.points.shaderProgram);
+            self.points.update(time);
+            self.points.render();
+        }
 
         requestAnimationFrame(self.animate);
     }
@@ -74,7 +74,13 @@ class App {
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const image = self.parsePBMBinaryImage(xhr.response);
-                console.log(image);
+                image.sectors = [];
+                for (let i = 0; i < image.data.length; i++) {
+                    if (image.data[i]) image.sectors.push(i);
+                }
+
+                // hardcode police
+                self.points = new Points(gl, image);
             }
         };
         xhr.send();
@@ -152,7 +158,7 @@ class App {
             curRowLength += 8;
             let num = parseInt(arrayOfUints[i + startPos], 10);
 
-            if (curRowLength <= imageWidth) {
+            if (curRowLength < imageWidth) {
                 for (j = 0; j < 8; j++) {
                     image[curColumn * imageWidth + curRowLength - j - 1] = num % 2; // reverse order
                     num = Math.floor(num / 2);
@@ -170,7 +176,7 @@ class App {
         }
 
         return {
-            image,
+            data: image,
             width: imageWidth,
             height: imageHeight
         };
