@@ -3,7 +3,7 @@ import pointsFrag from './points.frag';
 
 let x, y, viewMatrixUniform, perspectiveMatrixUniform, timeUniform;
 
-const n = 8500;
+const n = 2500;
 
 class Points {
     constructor(gl, mask) {

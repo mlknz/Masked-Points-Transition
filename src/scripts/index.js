@@ -2,6 +2,8 @@ if (module.hot) {
     module.hot.accept();
 }
 
+const GeometryBuilderWorker = require('worker!./geometryBuilderWorker/index.js');
+
 import Points from './points';
 
 const initGlContext = require('./webgldetection');
@@ -23,8 +25,29 @@ class App {
         }
         this.initGlState();
 
-        // this.makeImageRequest('http://localhost:9000/assets/images/test4.pbm');
+        // this.makeImageRequest('http://http://192.168.0.17:9000/assets/images/test4.pbm');
         this.makeImageRequest('https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm');
+
+        const worker = new GeometryBuilderWorker();
+        worker.addEventListener('message', (e) => {
+            if (e.data.geometries) {
+                self.points = new Points(gl, e.data.geometries);
+            }
+        }, false);
+        worker.addEventListener('error', (e) => {
+            console.warn('Error in webworker: ', e.data);
+        }, false);
+
+        worker.postMessage({
+            states: [
+                {
+                    image: null
+                },
+                {
+                    image: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm'
+                }
+            ]
+        });
 
         this.animate();
     }
