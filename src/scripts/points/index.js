@@ -3,15 +3,15 @@ import pointsFrag from './points.frag';
 
 let x, y, viewMatrixUniform, perspectiveMatrixUniform, timeUniform;
 
-const n = 2500;
-
 class Points {
-    constructor(gl, mask) {
+    constructor(gl, positions, n) {
         this.gl = gl;
         this.n = n;
 
-        const vertices = this.generateVerticesWithoutMask(this.n);
-        const vertices2 = this.generateVerticesFromMask(this.n, mask);
+        this.positions = positions;
+
+        const vertices = positions[0];
+        const vertices2 = positions[1];
 
         const vertexBuffer = gl.createBuffer();
 
@@ -56,37 +56,6 @@ class Points {
         document.addEventListener('mousemove', e => {
             this.updateView(e);
         });
-    }
-
-    generateVerticesWithoutMask(k) {
-        const arr = new Array(3 * k);
-        for (let i = 0; i < 3 * k; i += 3) {
-            arr[i] = Math.random() * 10 - 5;
-            arr[i + 1] = Math.random() * 10 - 5;
-            arr[i + 2] = -Math.random() * 10 - 1; // [-1, -11]
-        }
-        return arr;
-    }
-
-    generateVerticesFromMask(k, mask) {
-        const w = mask.width;
-        const h = mask.height;
-        const sectors = mask.sectors;
-        let sw;
-        let sh;
-
-        const arr = new Array(3 * k);
-        let j;
-        for (let i = 0; i < 3 * k; i += 3) {
-            j = (i / 3) % sectors.length;
-            sh = 1 - (Math.floor(sectors[j] / w) + Math.random()) / h;
-            sw = (sectors[j] % w + Math.random()) / w;
-
-            arr[i] = sw * 10 - 5;
-            arr[i + 1] = sh * 10 - 5;
-            arr[i + 2] = -8;
-        }
-        return arr;
     }
 
     resize() {
