@@ -27,7 +27,7 @@ const settings = {
         targetDistance: 2,
         near: 0.7,
         far: 100,
-        aspect: 1.1
+        fovy: 1.1
     },
 
     states: [

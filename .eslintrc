@@ -1,9 +1,6 @@
 {
   "extends": "airbnb/base",
-  "globals": {
-      "mat4": true,
-      "vec3": true
-  },
+  "globals": {},
   "rules": {
     "indent": [2, 4],
     "comma-dangle": [1, "never"],

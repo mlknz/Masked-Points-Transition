@@ -1,6 +1,8 @@
 import pointsVert from './points.vert';
 import pointsFrag from './points.frag';
 
+import {createMatrix4, lookAt, makePerspectiveMatrix, multiplyMatrices} from './glMatrixFunctions.js';
+
 let viewPerspectiveMatrixUniform, progressUniform;
 let dt, oldTime = 0;
 let targetX = 0, targetY = 0, newX = 0, newY = 0, dx, dy;
@@ -14,7 +16,7 @@ class Points {
         this.camAmplitude = settings.camera.amplitude || 0;
         this.camNear = settings.camera.near || 1;
         this.camFar = settings.camera.far || 80;
-        this.camAspect = settings.camera.aspect || 1;
+        this.camFovY = settings.camera.fovy || 1;
 
         this.positions = positions;
 
@@ -46,13 +48,13 @@ class Points {
         gl.vertexAttribPointer(newPos, 3, gl.FLOAT, false, 0, 0); // to the currently bound VBO
         gl.enableVertexAttribArray(newPos);
 
-        this.viewMatrix = mat4.create();
-        this.perpectiveMatrix = mat4.create();
-        this.viewPerspectiveMatrix = mat4.create();
+        this.viewMatrix = createMatrix4();
+        this.perpectiveMatrix = createMatrix4();
+        this.viewPerspectiveMatrix = createMatrix4();
 
-        this.eyePos = vec3.fromValues(0, 0, 0);
-        this.eyeTargetPos = vec3.fromValues(0, 0, -settings.camera.targetDistance);
-        this.up = vec3.fromValues(0, 1, 0);
+        this.eyePos = [0, 0, 0];
+        this.eyeTargetPos = [0, 0, -settings.camera.targetDistance];
+        this.up = [0, 1, 0];
 
         viewPerspectiveMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'viewPerspectiveMatrix');
         progressUniform = this.gl.getUniformLocation(this.shaderProgram, 'progress');
@@ -98,7 +100,7 @@ class Points {
 
     resize() {
         this.gl.useProgram(this.shaderProgram);
-        mat4.perspective(this.perpectiveMatrix, this.camAspect, window.innerWidth / window.innerHeight, this.camNear, this.camFar);
+        makePerspectiveMatrix(this.perpectiveMatrix, this.camFovY, window.innerWidth / window.innerHeight, this.camNear, this.camFar);
     }
 
     updateCamera(t) {
@@ -119,9 +121,9 @@ class Points {
         this.eyePos[0] = newX;
         this.eyePos[1] = newY;
 
-        mat4.lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
+        lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
 
-        mat4.multiply(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
+        multiplyMatrices(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
         this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 
