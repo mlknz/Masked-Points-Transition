@@ -1,13 +1,13 @@
 import pointsVert from './points.vert';
 import pointsFrag from './points.frag';
 
-let x, y, viewMatrixUniform, perspectiveMatrixUniform, progressUniform;
+let x, y, viewPerspectiveMatrixUniform, progressUniform;
 let vertexBuffer, vertexBuffer2;
 
 class Points {
-    constructor(gl, positions, n) {
+    constructor(gl, positions, settings) {
         this.gl = gl;
-        this.n = n;
+        this.n = settings.pointsCount;
 
         this.positions = positions;
 
@@ -41,16 +41,23 @@ class Points {
 
         this.viewMatrix = mat4.create();
         this.perpectiveMatrix = mat4.create();
+        this.viewPerspectiveMatrix = mat4.create();
 
         this.eyePos = vec3.fromValues(0, 0, 0);
         this.eyeTargetPos = vec3.fromValues(0, 0, -2);
         this.up = vec3.fromValues(0, 1, 0);
 
-        perspectiveMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'perspectiveMatrix');
-        viewMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'viewMatrix');
+        viewPerspectiveMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'viewPerspectiveMatrix');
         progressUniform = this.gl.getUniformLocation(this.shaderProgram, 'progress');
 
         gl.useProgram(this.shaderProgram);
+
+        const pointSizeUniform = this.gl.getUniformLocation(this.shaderProgram, 'pointSizeMinMax');
+        this.gl.uniform2f(pointSizeUniform, settings.pointSizeMin, settings.pointSizeMax);
+
+        const colorUniform = this.gl.getUniformLocation(this.shaderProgram, 'color');
+        this.gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
+
         this.updateView({
             clientX: window.innerWidth / 2,
             clientY: window.innerHeight / 2
@@ -87,7 +94,8 @@ class Points {
         this.gl.useProgram(this.shaderProgram);
         mat4.perspective(this.perpectiveMatrix, 1, window.innerWidth / window.innerHeight, 0.5, 21.1); // out, fovy, aspect, near, far
 
-        this.gl.uniformMatrix4fv(perspectiveMatrixUniform, false, this.perpectiveMatrix);
+        mat4.multiply(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
+        this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 
     updateView(e) {
@@ -99,7 +107,9 @@ class Points {
 
         mat4.lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
 
-        this.gl.uniformMatrix4fv(viewMatrixUniform, false, this.viewMatrix);
+        mat4.multiply(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
+
+        this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 
     createShaderProgram(gl) {

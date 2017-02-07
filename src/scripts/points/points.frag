@@ -1,5 +1,6 @@
 precision highp float;
 
+uniform vec3 color;
 varying float dist;
 
 void main() {
@@ -9,5 +10,7 @@ void main() {
     // if (length(coord) > 0.5) inCircle = 0.;
     if (inCircle < 0.95) discard;
     gl_FragColor = vec4(mix(0., 1. - dist, inCircle));
+
+    gl_FragColor.rgb *= color;
     gl_FragColor.a = mix(1., 1. - dist, inCircle);
 }

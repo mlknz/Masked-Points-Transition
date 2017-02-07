@@ -51,6 +51,9 @@ self.startCreation = function(states, pointsCount) {
 
     for (let i = 0; i < states.length; i++) {
         switch (states[i].type) {
+        case 'rawData':
+            self.result.geometries[i] = new Float32Array(states[i].data);
+            break;
         case 'box':
             buf = self.posGenerator.generateBoxVertices(self.pointsCount, states[i]);
             self.result.geometries[i] = buf;
@@ -74,7 +77,7 @@ self.startCreation = function(states, pointsCount) {
             self.result.geometries[i] = buf;
             break;
         default:
-            throw new Error('Masked Points Transition: Unknown points state type. Should be box / maskedBoxFromImage / maskedBoxFromMatrix.');
+            throw new Error('Masked Points Transition: Unknown points state type. Should be box / maskedBoxFromImage / maskedBoxFromMatrix / rawData.');
         }
     }
 

@@ -13,7 +13,58 @@ let time = 0;
 let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
-class App {
+const settings = {
+    pointsCount: 1500,
+    pointSizeMin: 5,
+    pointSizeMax: 10,
+
+    backgroundColor: [0, 0, 0, 1],
+    pointsColor: [1, 1, 1],
+
+    states: [
+        {
+            type: 'box',
+            width: 10,
+            height: 10,
+            depth: 10,
+            zDistance: 5
+        },
+        {
+            type: 'box',
+            width: 10,
+            height: 10,
+            depth: 10,
+            zDistance: 5
+        },
+        {
+            type: 'box',
+            width: 50,
+            height: 50,
+            depth: 1,
+            zDistance: -1
+        },
+        {
+            type: 'maskedBoxFromImage',
+            imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
+            width: 10,
+            height: 10,
+            depth: 0.1,
+            zDistance: 12
+        },
+        {
+            type: 'maskedBoxFromMatrix',
+            matrix: [1, 1, 1, 0, 0, 1, 1, 0, 1],
+            matrixWidth: 3,
+            matrixHeight: 3,
+            width: 10,
+            height: 10,
+            depth: 0.1,
+            zDistance: 12
+        }
+    ]
+}; // 'http://192.168.0.17:9000/assets/images/test4.pbm'
+
+class App { // todo: smooth camera
     constructor() {
         self = this;
         canvas = document.getElementById('canvas');
@@ -24,8 +75,6 @@ class App {
         }
         this.initGlState();
 
-        // this.makeImageRequest('http://192.168.0.17:9000/assets/images/test4.pbm');
-
         const worker = new GeometryBuilderWorker();
         worker.addEventListener('error', (e) => {
             console.warn('Error in webworker: ', e.data);
@@ -33,61 +82,20 @@ class App {
 
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
-                self.points = new Points(gl, e.data.geometries, 1500);
-                self.points.setPositionIndices(4, 3);
+                // todo: throw event
+                self.points = new Points(gl, e.data.geometries, settings);
+                self.points.setPositionIndices(4, 2);
             }
         }, false);
 
-        worker.postMessage({
-            pointsCount: 2500,
-            states: [
-                {
-                    type: 'box',
-                    width: 10,
-                    height: 10,
-                    depth: 10,
-                    zDistance: 5
-                },
-                {
-                    type: 'box',
-                    width: 10,
-                    height: 10,
-                    depth: 10,
-                    zDistance: 5
-                },
-                {
-                    type: 'box',
-                    width: 10,
-                    height: 10,
-                    depth: 1,
-                    zDistance: -1
-                },
-                {
-                    type: 'maskedBoxFromImage',
-                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
-                    width: 10,
-                    height: 10,
-                    depth: 0.1,
-                    zDistance: 12
-                },
-                {
-                    type: 'maskedBoxFromMatrix',
-                    matrix: [1, 0, 0, 0, 1, 0, 1, 0, 1],
-                    matrixWidth: 3,
-                    matrixHeight: 3,
-                    width: 10,
-                    height: 10,
-                    depth: 0.1,
-                    zDistance: 12
-                }
-            ]
-        });
+        worker.postMessage(settings);
 
         this.animate();
     }
 
     initGlState() {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        const c = settings.backgroundColor;
+        gl.clearColor(c[0], c[1], c[2], c[3]);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.ONE, gl.ONE);
         // gl.enable(gl.DEPTH_TEST);
