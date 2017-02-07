@@ -5,7 +5,7 @@ import {createMatrix4, lookAt, makePerspectiveMatrix, multiplyMatrices} from './
 
 let viewPerspectiveMatrixUniform, progressUniform;
 let dt, oldTime = 0;
-let targetX = 0, targetY = 0, newX = 0, newY = 0, dx, dy;
+let targetX = 0, targetY = 0, newX = 0, newY = 0, dx, dy, norm;
 let vertexBuffer, vertexBuffer2;
 
 class Points {
@@ -74,6 +74,12 @@ class Points {
                 targetX = (e.clientX / window.innerWidth - 0.5) * this.camAmplitude;
                 targetY = -(e.clientY / window.innerHeight - 0.5) * this.camAmplitude;
             });
+            document.addEventListener('touchmove', e => {
+                if (e.changedTouches && e.changedTouches[0]) {
+                    targetX = (e.changedTouches[0].clientX / window.innerWidth - 0.5) * this.camAmplitude;
+                    targetY = -(e.changedTouches[0].clientY / window.innerHeight - 0.5) * this.camAmplitude;
+                }
+            });
         }
     }
 
@@ -110,7 +116,7 @@ class Points {
         dx = targetX - this.eyePos[0];
         dy = targetY - this.eyePos[1];
         if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
-            const norm = Math.sqrt(dx * dx + dy * dy);
+            norm = Math.sqrt(dx * dx + dy * dy);
             dx /= norm;
             dy /= norm;
 
