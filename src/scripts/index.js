@@ -3,7 +3,7 @@ if (module.hot) {
 }
 
 const initGlContext = require('./webgldetection');
-const GeometryBuilderWorker = require('worker!./geometryBuilderWorker/index.js');
+const GeometryBuilderWorker = require('worker-loader?inline=only!./geometryBuilderWorker/index.js');
 
 import Points from './points';
 
@@ -76,6 +76,9 @@ class App { // todo: smooth camera
         this.initGlState();
 
         const worker = new GeometryBuilderWorker();
+        // const worker = new Worker(window.URL.createObjectURL(new Blob([
+        //     workerScript
+        // ])));
         worker.addEventListener('error', (e) => {
             console.warn('Error in webworker: ', e.data);
         }, false);
