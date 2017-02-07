@@ -10,8 +10,8 @@ import Points from './points';
 let gl = null;
 let canvas, width, height;
 let time = 0;
-const devicePixelRatio = window.devicePixelRatio || 1;
 let self;
+const devicePixelRatio = window.devicePixelRatio || 1;
 
 class App {
     constructor() {
@@ -25,7 +25,6 @@ class App {
         this.initGlState();
 
         // this.makeImageRequest('http://192.168.0.17:9000/assets/images/test4.pbm');
-        // this.makeImageRequest('https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm');
 
         const worker = new GeometryBuilderWorker();
         worker.addEventListener('error', (e) => {
@@ -34,8 +33,8 @@ class App {
 
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
-                self.points = new Points(gl, e.data.geometries, 2500);
-                self.points.setPositionIndices(0, 1);
+                self.points = new Points(gl, e.data.geometries, 1500);
+                self.points.setPositionIndices(4, 3);
             }
         }, false);
 
@@ -43,11 +42,43 @@ class App {
             pointsCount: 2500,
             states: [
                 {
-                    type: 'box'
+                    type: 'box',
+                    width: 10,
+                    height: 10,
+                    depth: 10,
+                    zDistance: 5
                 },
                 {
-                    type: 'maskedBox',
-                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm'
+                    type: 'box',
+                    width: 10,
+                    height: 10,
+                    depth: 10,
+                    zDistance: 5
+                },
+                {
+                    type: 'box',
+                    width: 10,
+                    height: 10,
+                    depth: 1,
+                    zDistance: -1
+                },
+                {
+                    type: 'maskedBoxFromImage',
+                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
+                    width: 10,
+                    height: 10,
+                    depth: 0.1,
+                    zDistance: 12
+                },
+                {
+                    type: 'maskedBoxFromMatrix',
+                    matrix: [1, 0, 0, 0, 1, 0, 1, 0, 1],
+                    matrixWidth: 3,
+                    matrixHeight: 3,
+                    width: 10,
+                    height: 10,
+                    depth: 0.1,
+                    zDistance: 12
                 }
             ]
         });
