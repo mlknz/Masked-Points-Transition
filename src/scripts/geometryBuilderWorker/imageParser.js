@@ -1,4 +1,4 @@
-export default class MaskParser {
+export default class ImageParser {
     constructor() {}
 
     parsePBMBinaryImage(response) {

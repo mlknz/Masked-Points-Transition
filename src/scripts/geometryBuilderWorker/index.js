@@ -1,21 +1,12 @@
-import MaskParser from './maskParser.js';
+import ImageParser from './imageParser.js';
 
-self.maskParser = new MaskParser();
+self.imageParser = new ImageParser();
 self.unprocessedStatesAmount = 1;
 self.pointsCount = 1;
 
 self.result = {
     geometries: []
 };
-// const obj = {
-//     a: self.someInfo,
-//     b: new Float32Array(self.someArr),
-//     c: new Uint32Array(self.someArr2)
-// };
-// self.postMessage(obj, [
-//     obj.b.buffer,
-//     obj.c.buffer
-// ]);
 
 self.generateBoxVertices = function(k) {
     const arr = new Array(3 * k);
@@ -28,7 +19,12 @@ self.generateBoxVertices = function(k) {
 };
 
 self.exit = function() {
-    self.postMessage(self.result);
+    const buffersToTransfer = new Array(self.result.geometries.length);
+    for (let i = 0; i < self.result.geometries.length; i++) {
+        buffersToTransfer[i] = self.result.geometries[i].buffer;
+    }
+
+    self.postMessage(self.result, buffersToTransfer);
 };
 
 self.generateMaskedBoxVertices = function(k, image) {
@@ -60,14 +56,14 @@ self.makeImageRequest = function(addr) {
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            const image = self.maskParser.parsePBMBinaryImage(xhr.response);
+            const image = self.imageParser.parsePBMBinaryImage(xhr.response);
             image.sectors = [];
             for (let i = 0; i < image.data.length; i++) {
                 if (image.data[i]) image.sectors.push(i);
             }
 
             const arr = self.generateMaskedBoxVertices(self.pointsCount, image);
-            self.result.geometries.push(arr);
+            self.result.geometries.push(new Float32Array(arr));
 
             self.unprocessedStatesAmount -= 1;
             if (self.unprocessedStatesAmount < 1) self.exit();
@@ -88,7 +84,7 @@ self.startCreation = function(states, pointsCount) {
             break;
         case 'box':
             const arr = self.generateBoxVertices(self.pointsCount);
-            self.result.geometries.push(arr);
+            self.result.geometries.push(new Float32Array(arr));
             break;
         case 'sphere':
             break;

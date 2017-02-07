@@ -35,6 +35,7 @@ class App {
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
                 self.points = new Points(gl, e.data.geometries, 2500);
+                self.points.setPositionIndices(0, 1);
             }
         }, false);
 
@@ -83,7 +84,7 @@ class App {
 
         if (self.points) {
             gl.useProgram(self.points.shaderProgram);
-            self.points.update(time);
+            self.points.updateProgress(time);
             self.points.render();
         }
 

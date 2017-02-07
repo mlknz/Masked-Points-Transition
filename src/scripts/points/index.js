@@ -1,7 +1,8 @@
 import pointsVert from './points.vert';
 import pointsFrag from './points.frag';
 
-let x, y, viewMatrixUniform, perspectiveMatrixUniform, timeUniform;
+let x, y, viewMatrixUniform, perspectiveMatrixUniform, progressUniform;
+let vertexBuffer, vertexBuffer2;
 
 class Points {
     constructor(gl, positions, n) {
@@ -10,29 +11,32 @@ class Points {
 
         this.positions = positions;
 
-        const vertices = positions[0];
-        const vertices2 = positions[1];
-
-        const vertexBuffer = gl.createBuffer();
+        vertexBuffer = gl.createBuffer();
+        vertexBuffer2 = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices.concat(vertices2)), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.positions[0], gl.STATIC_DRAW);
 
-        // gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+
+        gl.bufferData(gl.ARRAY_BUFFER, this.positions[0], gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         this.shaderProgram = this.createShaderProgram(gl);
-
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
         const pos = gl.getAttribLocation(this.shaderProgram, 'position');
         const newPos = gl.getAttribLocation(this.shaderProgram, 'newPosition');
 
-        // to the currently bound VBO
-        gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0);
-        gl.vertexAttribPointer(newPos, 3, gl.FLOAT, false, 0, 4 * vertices.length);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
+        gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0); // to the currently bound VBO
         gl.enableVertexAttribArray(pos);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+
+        gl.vertexAttribPointer(newPos, 3, gl.FLOAT, false, 0, 0); // to the currently bound VBO
         gl.enableVertexAttribArray(newPos);
 
         this.viewMatrix = mat4.create();
@@ -44,7 +48,7 @@ class Points {
 
         perspectiveMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'perspectiveMatrix');
         viewMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'viewMatrix');
-        timeUniform = this.gl.getUniformLocation(this.shaderProgram, 'time');
+        progressUniform = this.gl.getUniformLocation(this.shaderProgram, 'progress');
 
         gl.useProgram(this.shaderProgram);
         this.updateView({
@@ -56,6 +60,27 @@ class Points {
         document.addEventListener('mousemove', e => {
             this.updateView(e);
         });
+    }
+
+    setPositionIndices(ind0, ind1) {
+        let i = ind0;
+        let j = ind1;
+        const gl = this.gl;
+
+        if (!(this.positions[i] && this.positions[j])) {
+            i = 0;
+            j = 0;
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+        gl.bufferData(gl.ARRAY_BUFFER, this.positions[i], gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+
+        gl.bufferData(gl.ARRAY_BUFFER, this.positions[j], gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
 
     resize() {
@@ -94,8 +119,8 @@ class Points {
         return shaderProgram;
     }
 
-    update(t) {
-        this.gl.uniform1f(timeUniform, t);
+    updateProgress(t) {
+        this.gl.uniform1f(progressUniform, t);
     }
 
     render() {
