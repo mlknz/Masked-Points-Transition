@@ -1,13 +1,20 @@
 import pointsVert from './points.vert';
 import pointsFrag from './points.frag';
 
-let x, y, viewPerspectiveMatrixUniform, progressUniform;
+let viewPerspectiveMatrixUniform, progressUniform;
+let dt, oldTime = 0;
+let targetX = 0, targetY = 0, newX = 0, newY = 0, dx, dy;
 let vertexBuffer, vertexBuffer2;
 
 class Points {
     constructor(gl, positions, settings) {
         this.gl = gl;
-        this.n = settings.pointsCount;
+        this.n = settings.pointsCount || 1;
+        this.camSpeed = settings.camera.speed || 0;
+        this.camAmplitude = settings.camera.amplitude || 0;
+        this.camNear = settings.camera.near || 1;
+        this.camFar = settings.camera.far || 80;
+        this.camAspect = settings.camera.aspect || 1;
 
         this.positions = positions;
 
@@ -44,7 +51,7 @@ class Points {
         this.viewPerspectiveMatrix = mat4.create();
 
         this.eyePos = vec3.fromValues(0, 0, 0);
-        this.eyeTargetPos = vec3.fromValues(0, 0, -2);
+        this.eyeTargetPos = vec3.fromValues(0, 0, -settings.camera.targetDistance);
         this.up = vec3.fromValues(0, 1, 0);
 
         viewPerspectiveMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, 'viewPerspectiveMatrix');
@@ -58,15 +65,14 @@ class Points {
         const colorUniform = this.gl.getUniformLocation(this.shaderProgram, 'color');
         this.gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
 
-        this.updateView({
-            clientX: window.innerWidth / 2,
-            clientY: window.innerHeight / 2
-        });
         this.resize();
 
-        document.addEventListener('mousemove', e => {
-            this.updateView(e);
-        });
+        if (settings.camera.speed) {
+            document.addEventListener('mousemove', e => {
+                targetX = (e.clientX / window.innerWidth - 0.5) * this.camAmplitude;
+                targetY = -(e.clientY / window.innerHeight - 0.5) * this.camAmplitude;
+            });
+        }
     }
 
     setPositionIndices(ind0, ind1) {
@@ -92,23 +98,30 @@ class Points {
 
     resize() {
         this.gl.useProgram(this.shaderProgram);
-        mat4.perspective(this.perpectiveMatrix, 1, window.innerWidth / window.innerHeight, 0.5, 21.1); // out, fovy, aspect, near, far
-
-        mat4.multiply(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
-        this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
+        mat4.perspective(this.perpectiveMatrix, this.camAspect, window.innerWidth / window.innerHeight, this.camNear, this.camFar);
     }
 
-    updateView(e) {
-        x = e.clientX / window.innerWidth;
-        y = e.clientY / window.innerHeight;
+    updateCamera(t) {
+        dt = t - oldTime;
+        oldTime = t;
 
-        this.eyePos[0] = -(x - 0.5) * 0.3;
-        this.eyePos[1] = +(y - 0.5) * 0.3;
+        dx = targetX - this.eyePos[0];
+        dy = targetY - this.eyePos[1];
+        if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+            const norm = Math.sqrt(dx * dx + dy * dy);
+            dx /= norm;
+            dy /= norm;
+
+            newX = this.eyePos[0] + dx * dt * this.camSpeed;
+            newY = this.eyePos[1] + dy * dt * this.camSpeed;
+        }
+
+        this.eyePos[0] = newX;
+        this.eyePos[1] = newY;
 
         mat4.lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
 
         mat4.multiply(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
-
         this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 

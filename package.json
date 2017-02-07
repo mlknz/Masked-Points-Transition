@@ -1,12 +1,12 @@
 {
-  "name": "basic-node-webpack-app",
+  "name": "Masked-Points-Transition",
   "version": "0.0.0",
   "engines": {
     "node": ">=5.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mlknz/Basic-Node-Webpack-App.git"
+    "url": "https://github.com/mlknz/Masked-Points-Transition.git"
   },
   "devDependencies": {
     "babel-core": "^6.4.5",
@@ -22,7 +22,6 @@
     "gulp-if": "^2.0.0",
     "gulp-util": "^3.0.7",
     "ip": "^1.1.0",
-    "json-loader": "^0.5.4",
     "portfinder": "^0.4.0",
     "webpack": "^1.12.12",
     "webpack-dev-server": "^1.14.1",

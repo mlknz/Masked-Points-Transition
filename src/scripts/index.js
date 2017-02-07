@@ -18,22 +18,31 @@ const settings = {
     pointSizeMin: 5,
     pointSizeMax: 10,
 
-    backgroundColor: [0, 0, 0, 1],
+    backgroundColor: [0, 0, 0],
     pointsColor: [1, 1, 1],
+
+    camera: {
+        speed: 0.2,
+        amplitude: 0.4,
+        targetDistance: 2,
+        near: 0.7,
+        far: 100,
+        aspect: 1.1
+    },
 
     states: [
         {
             type: 'box',
             width: 10,
             height: 10,
-            depth: 10,
+            depth: 7,
             zDistance: 5
         },
         {
             type: 'box',
             width: 10,
             height: 10,
-            depth: 10,
+            depth: 9,
             zDistance: 5
         },
         {
@@ -64,7 +73,7 @@ const settings = {
     ]
 }; // 'http://192.168.0.17:9000/assets/images/test4.pbm'
 
-class App { // todo: smooth camera
+class App {
     constructor() {
         self = this;
         canvas = document.getElementById('canvas');
@@ -76,18 +85,15 @@ class App { // todo: smooth camera
         this.initGlState();
 
         const worker = new GeometryBuilderWorker();
-        // const worker = new Worker(window.URL.createObjectURL(new Blob([
-        //     workerScript
-        // ])));
         worker.addEventListener('error', (e) => {
             console.warn('Error in webworker: ', e.data);
         }, false);
 
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
-                // todo: throw event
                 self.points = new Points(gl, e.data.geometries, settings);
-                self.points.setPositionIndices(4, 2);
+                // todo: throw event
+                // self.points.setPositionIndices(1, 2);
             }
         }, false);
 
@@ -98,7 +104,7 @@ class App { // todo: smooth camera
 
     initGlState() {
         const c = settings.backgroundColor;
-        gl.clearColor(c[0], c[1], c[2], c[3]);
+        gl.clearColor(c[0], c[1], c[2], 1);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.ONE, gl.ONE);
         // gl.enable(gl.DEPTH_TEST);
@@ -127,6 +133,7 @@ class App { // todo: smooth camera
         if (self.points) {
             gl.useProgram(self.points.shaderProgram);
             self.points.updateProgress(time);
+            self.points.updateCamera(time);
             self.points.render();
         }
 
