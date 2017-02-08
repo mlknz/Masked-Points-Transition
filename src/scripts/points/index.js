@@ -5,11 +5,12 @@ import {createMatrix4, lookAt, makePerspectiveMatrix, multiplyMatrices} from './
 
 let viewPerspectiveMatrixUniform, progressUniform;
 let dt, oldTime = 0;
-let targetX = 0, targetY = 0, newX = 0, newY = 0, dx, dy, norm;
+let targetX = 0, targetY = 0, curX = 0, curY = 0, dx, dy, norm, speedMult;
+let mouseInside = true, inertia = 1;
 let vertexBuffer, vertexBuffer2;
 
 class Points {
-    constructor(gl, positions, settings) {
+    constructor(gl, container, positions, settings) {
         this.gl = gl;
         this.n = settings.pointsCount || 1;
         this.camSpeed = settings.camera.speed || 0;
@@ -17,6 +18,7 @@ class Points {
         this.camNear = settings.camera.near || 1;
         this.camFar = settings.camera.far || 80;
         this.camFovY = settings.camera.fovy || 1;
+        this.camInertiaMult = settings.camera.inertiaMult || 1;
 
         this.positions = positions;
 
@@ -70,15 +72,28 @@ class Points {
         this.resize();
 
         if (settings.camera.speed) {
-            document.addEventListener('mousemove', e => {
+            container.addEventListener('mousemove', e => {
                 targetX = (e.clientX / window.innerWidth - 0.5) * this.camAmplitude;
                 targetY = -(e.clientY / window.innerHeight - 0.5) * this.camAmplitude;
             });
-            document.addEventListener('touchmove', e => {
+            container.addEventListener('touchmove', e => {
                 if (e.changedTouches && e.changedTouches[0]) {
                     targetX = (e.changedTouches[0].clientX / window.innerWidth - 0.5) * this.camAmplitude;
                     targetY = -(e.changedTouches[0].clientY / window.innerHeight - 0.5) * this.camAmplitude;
                 }
+            });
+
+            container.addEventListener('mouseout', () => {
+                mouseInside = false;
+                inertia = 1;
+            });
+            container.addEventListener('mouseleave', () => {
+                mouseInside = false;
+                inertia = 1;
+            });
+            container.addEventListener('mouseenter', () => {
+                mouseInside = true;
+                inertia = 1;
             });
         }
     }
@@ -115,17 +130,19 @@ class Points {
 
         dx = targetX - this.eyePos[0];
         dy = targetY - this.eyePos[1];
-        if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+        if (Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005) {
             norm = Math.sqrt(dx * dx + dy * dy);
             dx /= norm;
             dy /= norm;
+            speedMult = Math.min(norm * 3, 1);
 
-            newX = this.eyePos[0] + dx * dt * this.camSpeed;
-            newY = this.eyePos[1] + dy * dt * this.camSpeed;
+            curX = this.eyePos[0] + dx * dt * this.camSpeed * speedMult * inertia;
+            curY = this.eyePos[1] + dy * dt * this.camSpeed * speedMult * inertia;
         }
+        if (!mouseInside) inertia = Math.max(0, inertia - dt * this.camInertiaMult);
 
-        this.eyePos[0] = newX;
-        this.eyePos[1] = newY;
+        this.eyePos[0] = curX;
+        this.eyePos[1] = curY;
 
         lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
 

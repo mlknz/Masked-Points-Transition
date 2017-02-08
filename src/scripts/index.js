@@ -13,7 +13,7 @@ let time = 0;
 let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
-const settings = {
+const settings = { // canvas , listener container
     pointsCount: 1500,
     pointSizeMin: 5,
     pointSizeMax: 10,
@@ -24,6 +24,7 @@ const settings = {
     camera: {
         speed: 0.2,
         amplitude: 0.4,
+        inertiaMult: 1,
         targetDistance: 2,
         near: 0.7,
         far: 100,
@@ -91,9 +92,9 @@ class App {
 
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
-                self.points = new Points(gl, e.data.geometries, settings);
+                self.points = new Points(gl, canvas, e.data.geometries, settings);
                 // todo: throw event
-                // self.points.setPositionIndices(1, 2);
+                // self.points.setPositionIndices(3, 4);
             }
         }, false);
 
