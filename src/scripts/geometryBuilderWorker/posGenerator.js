@@ -12,7 +12,7 @@ export default class PosGenerator {
         for (let i = 0; i < 3 * k; i += 3) {
             arr[i] = Math.random() * boxW - boxW / 2;
             arr[i + 1] = Math.random() * boxH - boxH / 2;
-            arr[i + 2] = -Math.random() * boxDepth - zDistance;
+            arr[i + 2] = -(Math.random() * boxDepth - boxDepth / 2) - zDistance;
         }
         return new Float32Array(arr);
     }
@@ -38,7 +38,7 @@ export default class PosGenerator {
 
             arr[i] = sw * boxW - boxW / 2;
             arr[i + 1] = sh * boxH - boxH / 2;
-            arr[i + 2] = -Math.random() * boxDepth - zDistance;
+            arr[i + 2] = -(Math.random() * boxDepth - boxDepth / 2) - zDistance;
         }
         return new Float32Array(arr);
     }

@@ -14,19 +14,19 @@ let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
 const settings = { // canvas , listener container
-    pointsCount: 3800,
-    pointSizeMin: 5,
-    pointSizeMax: 10,
-
     backgroundColor: [0, 0, 0],
     pointsColor: [1, 1, 1],
+
+    pointsCount: 100,
+    pointSizeMinMax: [1, 10],
+    pointSizeDistMinMax: [1, 20],
 
     camera: {
         speed: 0.4,
         amplitude: 0.8,
         inertiaMult: 1,
-        targetDistance: 2,
-        near: 0.7,
+        targetDistance: 8,
+        near: 0.1,
         far: 100,
         fovy: 1.1
     },
@@ -34,10 +34,10 @@ const settings = { // canvas , listener container
     states: [
         {
             type: 'box',
-            width: 1,
-            height: 1,
-            depth: 1.1,
-            zDistance: 2
+            width: 3,
+            height: 3,
+            depth: 10,
+            zDistance: 10
         },
         {
             type: 'box',
