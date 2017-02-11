@@ -14,7 +14,7 @@ let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
 const settings = { // canvas , listener container
-    pointsCount: 1500,
+    pointsCount: 1800,
     pointSizeMin: 5,
     pointSizeMax: 10,
 
@@ -22,8 +22,8 @@ const settings = { // canvas , listener container
     pointsColor: [1, 1, 1],
 
     camera: {
-        speed: 0.2,
-        amplitude: 0.4,
+        speed: 0.5,
+        amplitude: 0.8,
         inertiaMult: 1,
         targetDistance: 2,
         near: 0.7,
@@ -34,10 +34,10 @@ const settings = { // canvas , listener container
     states: [
         {
             type: 'box',
-            width: 10,
-            height: 10,
-            depth: 7,
-            zDistance: 5
+            width: 1,
+            height: 1,
+            depth: 1.1,
+            zDistance: 4
         },
         {
             type: 'box',
@@ -55,7 +55,8 @@ const settings = { // canvas , listener container
         },
         {
             type: 'maskedBoxFromImage',
-            imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
+            // imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
+            imageUrl: 'http://127.0.0.1:9000/assets/images/test4.pbm',
             width: 10,
             height: 10,
             depth: 0.1,

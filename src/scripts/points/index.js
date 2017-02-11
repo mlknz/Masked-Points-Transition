@@ -82,14 +82,11 @@ class Points {
                     targetY = -(e.changedTouches[0].clientY / window.innerHeight - 0.5) * this.camAmplitude;
                 }
             });
-
             container.addEventListener('mouseout', () => {
                 mouseInside = false;
-                inertia = 1;
             });
             container.addEventListener('mouseleave', () => {
                 mouseInside = false;
-                inertia = 1;
             });
             container.addEventListener('mouseenter', () => {
                 mouseInside = true;
@@ -128,16 +125,16 @@ class Points {
         dt = t - oldTime;
         oldTime = t;
 
-        dx = targetX - this.eyePos[0];
-        dy = targetY - this.eyePos[1];
+        dx = targetX - curX;
+        dy = targetY - curY;
         if (Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005) {
             norm = Math.sqrt(dx * dx + dy * dy);
             dx /= norm;
             dy /= norm;
             speedMult = Math.min(norm * 3, 1);
 
-            curX = this.eyePos[0] + dx * dt * this.camSpeed * speedMult * inertia;
-            curY = this.eyePos[1] + dy * dt * this.camSpeed * speedMult * inertia;
+            curX += dx * dt * this.camSpeed * speedMult * inertia;
+            curY += dy * dt * this.camSpeed * speedMult * inertia;
         }
         if (!mouseInside) inertia = Math.max(0, inertia - dt * this.camInertiaMult);
 
@@ -146,7 +143,7 @@ class Points {
 
         lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
 
-        multiplyMatrices(this.viewPerspectiveMatrix, this.viewMatrix, this.perpectiveMatrix);
+        multiplyMatrices(this.viewPerspectiveMatrix, this.perpectiveMatrix, this.viewMatrix);
         this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 
