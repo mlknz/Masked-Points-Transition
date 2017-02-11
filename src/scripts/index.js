@@ -14,7 +14,7 @@ let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
 const settings = { // canvas , listener container
-    pointsCount: 1800,
+    pointsCount: 3800,
     pointSizeMin: 5,
     pointSizeMax: 10,
 
@@ -22,7 +22,7 @@ const settings = { // canvas , listener container
     pointsColor: [1, 1, 1],
 
     camera: {
-        speed: 0.5,
+        speed: 0.4,
         amplitude: 0.8,
         inertiaMult: 1,
         targetDistance: 2,
@@ -37,7 +37,7 @@ const settings = { // canvas , listener container
             width: 1,
             height: 1,
             depth: 1.1,
-            zDistance: 4
+            zDistance: 2
         },
         {
             type: 'box',
@@ -60,7 +60,7 @@ const settings = { // canvas , listener container
             width: 10,
             height: 10,
             depth: 0.1,
-            zDistance: 12
+            zDistance: 8
         },
         {
             type: 'maskedBoxFromMatrix',
@@ -70,10 +70,10 @@ const settings = { // canvas , listener container
             width: 10,
             height: 10,
             depth: 0.1,
-            zDistance: 12
+            zDistance: 8
         }
     ]
-}; // 'http://192.168.0.17:9000/assets/images/test4.pbm'
+};
 
 class App {
     constructor() {
