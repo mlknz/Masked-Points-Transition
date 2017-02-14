@@ -16,6 +16,76 @@
         </div>
 
         <script src="scripts/app.js"></script>
+        <script>
+        var canvas = document.getElementById('canvas');
+        var settings = {
+            canvas: canvas,
+            mouseListenerContainer: canvas,
+            backgroundColor: [0, 0, 0],
+            pointsColor: [1, 1, 1],
+
+            pointsCount: 1000,
+            pointSizeMinMax: [1, 10],
+            pointSizeDistMinMax: [1, 20],
+
+            camera: {
+                speed: 0.4,
+                amplitude: 0.8,
+                inertiaMult: 1,
+                targetDistance: 8,
+                near: 0.1,
+                far: 100,
+                fovy: 1.1
+            },
+
+            states: [
+                {
+                    type: 'box',
+                    width: 3,
+                    height: 3,
+                    depth: 10,
+                    zDistance: 10
+                },
+                {
+                    type: 'box',
+                    width: 10,
+                    height: 10,
+                    depth: 9,
+                    zDistance: 5
+                },
+                {
+                    type: 'box',
+                    width: 50,
+                    height: 50,
+                    depth: 1,
+                    zDistance: -1
+                },
+                {
+                    type: 'maskedBoxFromImage',
+                    // imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
+                    imageUrl: 'http://127.0.0.1:9000/assets/images/test4.pbm',
+                    width: 10,
+                    height: 10,
+                    depth: 0.1,
+                    zDistance: 8
+                },
+                {
+                    type: 'maskedBoxFromMatrix',
+                    matrix: [1, 1, 1, 0, 0, 1, 1, 0, 1],
+                    matrixWidth: 3,
+                    matrixHeight: 3,
+                    width: 10,
+                    height: 10,
+                    depth: 0.1,
+                    zDistance: 8
+                }
+            ]
+        };
+        if (window.maskedPoints && typeof window.maskedPoints.init === 'function') {
+            var maskedPoints = window.maskedPoints.init(settings);
+            console.log(maskedPoints);
+        }
+        </script>
 
     </body>
 </html>

@@ -8,77 +8,23 @@ const GeometryBuilderWorker = require('worker-loader?inline=only!./geometryBuild
 import Points from './points';
 
 let gl = null;
-let canvas, width, height;
+
+let settings, canvas, width, height;
 let time = 0;
 let self;
 const devicePixelRatio = window.devicePixelRatio || 1;
 
-const settings = { // canvas , listener container
-    backgroundColor: [0, 0, 0],
-    pointsColor: [1, 1, 1],
-
-    pointsCount: 100,
-    pointSizeMinMax: [1, 10],
-    pointSizeDistMinMax: [1, 20],
-
-    camera: {
-        speed: 0.4,
-        amplitude: 0.8,
-        inertiaMult: 1,
-        targetDistance: 8,
-        near: 0.1,
-        far: 100,
-        fovy: 1.1
-    },
-
-    states: [
-        {
-            type: 'box',
-            width: 3,
-            height: 3,
-            depth: 10,
-            zDistance: 10
-        },
-        {
-            type: 'box',
-            width: 10,
-            height: 10,
-            depth: 9,
-            zDistance: 5
-        },
-        {
-            type: 'box',
-            width: 50,
-            height: 50,
-            depth: 1,
-            zDistance: -1
-        },
-        {
-            type: 'maskedBoxFromImage',
-            // imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
-            imageUrl: 'http://127.0.0.1:9000/assets/images/test4.pbm',
-            width: 10,
-            height: 10,
-            depth: 0.1,
-            zDistance: 8
-        },
-        {
-            type: 'maskedBoxFromMatrix',
-            matrix: [1, 1, 1, 0, 0, 1, 1, 0, 1],
-            matrixWidth: 3,
-            matrixHeight: 3,
-            width: 10,
-            height: 10,
-            depth: 0.1,
-            zDistance: 8
-        }
-    ]
-};
-
 class App {
-    constructor() {
+    constructor(settingsIn) {
         self = this;
-        canvas = document.getElementById('canvas');
+
+        settings = settingsIn;
+        canvas = settings.canvas;
+        const mouseListenerContainer = settings.mouseListenerContainer || canvas;
+
+        settings.canvas = null;
+        settings.mouseListenerContainer = null;
+
         gl = initGlContext(canvas);
         if (!gl) {
             document.body.innerHTML = 'Unable to initialize WebGL. Your browser may not support it.';
@@ -93,9 +39,9 @@ class App {
 
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
-                self.points = new Points(gl, canvas, e.data.geometries, settings);
+                self.points = new Points(gl, mouseListenerContainer, e.data.geometries, settings);
                 // todo: throw event
-                // self.points.setPositionIndices(3, 4);
+                self.points.setPositionIndices(3, 4);
             }
         }, false);
 
@@ -144,4 +90,7 @@ class App {
 
 }
 
-window.app = new App();
+window.maskedPoints = {};
+window.maskedPoints.init = (s) => {
+    return new App(s);
+};
