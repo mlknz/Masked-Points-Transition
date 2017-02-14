@@ -64,13 +64,13 @@ class Points {
         gl.useProgram(this.shaderProgram);
 
         const pointSizeUniform = this.gl.getUniformLocation(this.shaderProgram, 'pointSizeMinMax');
-        this.gl.uniform2f(pointSizeUniform, settings.pointSizeMinMax[0], settings.pointSizeMinMax[1]);
+        gl.uniform2f(pointSizeUniform, settings.pointSizeMinMax[0], settings.pointSizeMinMax[1]);
 
         const pointSizeDistUniform = this.gl.getUniformLocation(this.shaderProgram, 'pointSizeDistMinMax');
-        this.gl.uniform2f(pointSizeDistUniform, settings.pointSizeDistMinMax[0], settings.pointSizeDistMinMax[1]);
+        gl.uniform2f(pointSizeDistUniform, settings.pointSizeDistMinMax[0], settings.pointSizeDistMinMax[1]);
 
         const colorUniform = this.gl.getUniformLocation(this.shaderProgram, 'color');
-        this.gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
+        gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
 
         this.resize();
 
@@ -120,7 +120,7 @@ class Points {
     }
 
     resize() {
-        this.gl.useProgram(this.shaderProgram);
+        // this.gl.useProgram(this.shaderProgram);
         makePerspectiveMatrix(this.perpectiveMatrix, this.camFovY, window.innerWidth / window.innerHeight, this.camNear, this.camFar);
     }
 

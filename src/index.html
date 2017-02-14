@@ -82,8 +82,22 @@
             ]
         };
         if (window.maskedPoints && typeof window.maskedPoints.init === 'function') {
+            document.addEventListener('maskedPointsReady', function() {
+                maskedPoints.setBlendStates(3, 4);
+            });
             var maskedPoints = window.maskedPoints.init(settings);
-            console.log(maskedPoints);
+
+            var animate = function() {
+                var time = (new Date()).getTime();
+                time = (time - Math.floor(time / 1000000) * 1000000) / 1000;
+
+                maskedPoints.updateCamera(time);
+                maskedPoints.updateBlendProgress(time);
+                maskedPoints.render();
+
+                requestAnimationFrame(animate);
+            }
+            animate();
         }
         </script>
 

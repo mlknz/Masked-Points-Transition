@@ -4,15 +4,12 @@ if (module.hot) {
 
 const initGlContext = require('./webgldetection');
 const GeometryBuilderWorker = require('worker-loader?inline=only!./geometryBuilderWorker/index.js');
-
 import Points from './points';
 
-let gl = null;
-
-let settings, canvas, width, height;
-let time = 0;
-let self;
+const readyEvent = new Event('maskedPointsReady');
 const devicePixelRatio = window.devicePixelRatio || 1;
+
+let self, settings, canvas, width, height, gl = null;
 
 class App {
     constructor(settingsIn) {
@@ -27,10 +24,10 @@ class App {
 
         gl = initGlContext(canvas);
         if (!gl) {
-            document.body.innerHTML = 'Unable to initialize WebGL. Your browser may not support it.';
+            console.warn('Error at Masked Points: Unable to initialize WebGL. Your browser may not support it.');
             return;
         }
-        this.initGlState();
+        this._initGlState();
 
         const worker = new GeometryBuilderWorker();
         worker.addEventListener('error', (e) => {
@@ -40,17 +37,14 @@ class App {
         worker.addEventListener('message', (e) => {
             if (e.data.geometries) {
                 self.points = new Points(gl, mouseListenerContainer, e.data.geometries, settings);
-                // todo: throw event
-                self.points.setPositionIndices(3, 4);
+                document.dispatchEvent(readyEvent);
             }
         }, false);
 
         worker.postMessage(settings);
-
-        this.animate();
     }
 
-    initGlState() {
+    _initGlState() {
         const c = settings.backgroundColor;
         gl.clearColor(c[0], c[1], c[2], 1);
         gl.enable(gl.BLEND);
@@ -58,7 +52,7 @@ class App {
         // gl.enable(gl.DEPTH_TEST);
     }
 
-    resize() {
+    _resize() {
         width = Math.floor(canvas.clientWidth * devicePixelRatio);
         height = Math.floor(canvas.clientHeight * devicePixelRatio);
 
@@ -70,22 +64,23 @@ class App {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     }
 
-    animate() {
-        self.resize();
+    render() {
+        self._resize();
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        if (self.points) self.points.render();
+    }
 
-        time = (new Date()).getTime();
-        time = (time - Math.floor(time / 1000000) * 1000000) / 1000;
+    updateCamera(time) {
+        if (self.points) self.points.updateCamera(time);
+    }
 
-        if (self.points) {
-            gl.useProgram(self.points.shaderProgram);
-            self.points.updateProgress(time);
-            self.points.updateCamera(time);
-            self.points.render();
-        }
+    setBlendStates(i, j) {
+        self.points.setPositionIndices(i, j);
+    }
 
-        requestAnimationFrame(self.animate);
+    updateBlendProgress(t) {
+        if (self.points) self.points.updateProgress(t);
     }
 
 }
