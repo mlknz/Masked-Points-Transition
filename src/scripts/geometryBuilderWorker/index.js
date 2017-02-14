@@ -20,6 +20,24 @@ self.exit = function() {
     self.postMessage(self.result, buffersToTransfer);
 };
 
+self.shuffleArray = function(a) {
+    let i, t, j;
+    for (i = a.length - 1; i > 0; i -= 1) {
+        t = a[i];
+        j = Math.floor(Math.random() * (i + 1));
+        a[i] = a[j];
+        a[j] = t;
+    }
+};
+
+self.addSectorsDataToImage = function(image) {
+    image.sectors = [];
+    for (let i = 0; i < image.data.length; i++) {
+        if (image.data[i]) image.sectors.push(i);
+    }
+    self.shuffleArray(image.sectors);
+};
+
 self.makeImageRequest = function(params, geomInd) {
     const xhr = new XMLHttpRequest();
 
@@ -29,13 +47,8 @@ self.makeImageRequest = function(params, geomInd) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             const image = self.imageParser.parsePBMBinaryImage(xhr.response);
-            image.sectors = [];
-            for (let i = 0; i < image.data.length; i++) {
-                if (image.data[i]) image.sectors.push(i);
-            }
-
-            const buf = self.posGenerator.generateMaskedBoxVertices(self.pointsCount, params, image);
-            self.result.geometries[geomInd] = buf;
+            self.addSectorsDataToImage(image);
+            self.result.geometries[geomInd] = self.posGenerator.generateMaskedBoxVertices(self.pointsCount, params, image);
 
             self.unprocessedStatesAmount -= 1;
             if (self.unprocessedStatesAmount < 1) self.exit();
@@ -47,7 +60,6 @@ self.makeImageRequest = function(params, geomInd) {
 self.startCreation = function(states, pointsCount) {
     self.pointsCount = pointsCount;
     self.unprocessedStatesAmount = 0;
-    let buf;
 
     for (let i = 0; i < states.length; i++) {
         switch (states[i].type) {
@@ -55,8 +67,7 @@ self.startCreation = function(states, pointsCount) {
             self.result.geometries[i] = new Float32Array(states[i].data);
             break;
         case 'box':
-            buf = self.posGenerator.generateBoxVertices(self.pointsCount, states[i]);
-            self.result.geometries[i] = buf;
+            self.result.geometries[i] = self.posGenerator.generateBoxVertices(self.pointsCount, states[i]);
             break;
         case 'maskedBoxFromImage':
             if (!states[i].imageUrl) throw new Error('Masked Points Transition: State with \'maskedBoxFromImage\' type should have \'imageUrl\' field');
@@ -67,14 +78,10 @@ self.startCreation = function(states, pointsCount) {
             const image = {
                 data: states[i].matrix || [],
                 width: states[i].matrixWidth || 1,
-                height: states[i].matrixHeight || 1,
-                sectors: []
+                height: states[i].matrixHeight || 1
             };
-            for (let j = 0; j < image.data.length; j++) {
-                if (image.data[j]) image.sectors.push(j);
-            }
-            buf = self.posGenerator.generateMaskedBoxVertices(self.pointsCount, states[i], image);
-            self.result.geometries[i] = buf;
+            self.addSectorsDataToImage(image);
+            self.result.geometries[i] = self.posGenerator.generateMaskedBoxVertices(self.pointsCount, states[i], image);
             break;
         default:
             throw new Error('Masked Points Transition: Unknown points state type. Should be box / maskedBoxFromImage / maskedBoxFromMatrix / rawData.');
