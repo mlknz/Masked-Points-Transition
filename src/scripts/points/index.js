@@ -42,12 +42,12 @@ class Points {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
-        gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0); // to the currently bound VBO
+        gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(pos);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
 
-        gl.vertexAttribPointer(newPos, 3, gl.FLOAT, false, 0, 0); // to the currently bound VBO
+        gl.vertexAttribPointer(newPos, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(newPos);
 
         this.viewMatrix = createMatrix4();
@@ -73,6 +73,7 @@ class Points {
         gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
 
         this.resize();
+        this.updateCamera(0);
 
         if (settings.camera.speed) {
             container.addEventListener('mousemove', e => {
@@ -128,26 +129,28 @@ class Points {
         dt = t - oldTime;
         oldTime = t;
 
-        dx = targetX - curX;
-        dy = targetY - curY;
-        if (Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005) {
-            norm = Math.sqrt(dx * dx + dy * dy);
-            dx /= norm;
-            dy /= norm;
-            speedMult = Math.min(norm * 3, 1);
+        if (!isNaN(dt) && dt < 1) {
+            dx = targetX - curX;
+            dy = targetY - curY;
+            if (Math.abs(dx) > 0.005 || Math.abs(dy) > 0.005) {
+                norm = Math.sqrt(dx * dx + dy * dy);
+                dx /= norm;
+                dy /= norm;
+                speedMult = Math.min(norm * 3, 1);
 
-            curX += dx * dt * this.camSpeed * speedMult * inertia;
-            curY += dy * dt * this.camSpeed * speedMult * inertia;
+                curX += dx * dt * this.camSpeed * speedMult * inertia;
+                curY += dy * dt * this.camSpeed * speedMult * inertia;
+            }
+            if (!mouseInside) inertia = Math.max(0, inertia - dt * this.camInertiaMult);
+
+            this.eyePos[0] = curX;
+            this.eyePos[1] = curY;
+
+            lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
+
+            multiplyMatrices(this.viewPerspectiveMatrix, this.perpectiveMatrix, this.viewMatrix);
+            this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
         }
-        if (!mouseInside) inertia = Math.max(0, inertia - dt * this.camInertiaMult);
-
-        this.eyePos[0] = curX;
-        this.eyePos[1] = curY;
-
-        lookAt(this.viewMatrix, this.eyePos, this.eyeTargetPos, this.up);
-
-        multiplyMatrices(this.viewPerspectiveMatrix, this.perpectiveMatrix, this.viewMatrix);
-        this.gl.uniformMatrix4fv(viewPerspectiveMatrixUniform, false, this.viewPerspectiveMatrix);
     }
 
     createShaderProgram(gl) {
