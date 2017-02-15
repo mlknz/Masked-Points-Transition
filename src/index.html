@@ -18,6 +18,8 @@
         <script src="scripts/app.js"></script>
         <script>
         var canvas = document.getElementById('canvas');
+        var maskedPoints, time, startTime, curSlice = -1, pointsReady = false;
+
         var settings = {
             canvas: canvas,
             mouseListenerContainer: canvas,
@@ -81,18 +83,67 @@
                 }
             ]
         };
+        var transitions = [
+            {
+                fromState: 0,
+                toState: 1,
+                startTime: 0,
+                endTime: 2
+            },
+            {
+                fromState: 1,
+                toState: 1,
+                startTime: 2,
+                endTime: 3
+            },
+            {
+                fromState: 1,
+                toState: 0,
+                startTime: 3,
+                endTime: 5
+            },
+            {
+                fromState: 0,
+                toState: 0,
+                startTime: 5,
+                endTime: 6
+            }
+        ];
+        var totalLoopTime = 6, lt = 0, i, progress = 0, prev;
+
         if (window.maskedPoints && typeof window.maskedPoints.init === 'function') {
-            document.addEventListener('maskedPointsReady', function() {
-                maskedPoints.setBlendStates(3, 4);
-            });
-            var maskedPoints = window.maskedPoints.init(settings);
+            var onMaskedPointsReady = function() {
+                startTime = time;
+                pointsReady = true;
+            };
+
+            document.addEventListener('maskedPointsReady', onMaskedPointsReady);
+            maskedPoints = window.maskedPoints.init(settings);
 
             var animate = function() {
-                var time = (new Date()).getTime();
+                time = (new Date()).getTime();
                 time = (time - Math.floor(time / 1000000) * 1000000) / 1000;
 
+                if (pointsReady) {
+                    lt = (time - startTime) % totalLoopTime || 0;
+
+                    for (i = 0; i < transitions.length; i++) {
+                        if (lt < transitions[i].endTime) {
+                            prev = transitions[i].startTime;
+                            progress = (lt - prev) / (transitions[i].endTime - prev);
+                            break;
+                        }
+                    }
+                    if (lt !== curSlice) {
+                        maskedPoints.setBlendStates(transitions[i].fromState, transitions[i].toState);
+                        curSlice = lt;
+                    }
+
+                }
+                // console.log(progress);
+
                 maskedPoints.updateCamera(time);
-                maskedPoints.updateBlendProgress(time);
+                maskedPoints.updateBlendProgress(progress);
                 maskedPoints.render();
 
                 requestAnimationFrame(animate);

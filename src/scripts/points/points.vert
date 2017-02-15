@@ -10,8 +10,7 @@ uniform float progress;
 varying float dist;
 
 void main() {
-
-    vec3 pos = mix(position, newPosition, sin(progress)*0.5 + 0.5);
+    vec3 pos = mix(position, newPosition, progress);
     dist = clamp((-pos.z - pointSizeDistMinMax.x) / pointSizeDistMinMax.y, 0., 1.);
 
     gl_Position = viewPerspectiveMatrix * vec4(pos, 1.0);
