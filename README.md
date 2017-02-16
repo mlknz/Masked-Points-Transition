@@ -3,6 +3,7 @@
 WebGL animated points module (3d).
 
 **Features**
+
 1. *Points State* is a fixed set of points positions.
 2. Each *Points State* could be initialized with
 ⋅⋅* Array of positions in 3d space (*rawData*).
@@ -15,6 +16,7 @@ WebGL animated points module (3d).
 6. Module uses webworker for computing points positions.
 
 **API**
+
 ```javascript
 // expected settings format below
 var maskedPoints = window.maskedPoints.init(settings);
@@ -30,6 +32,7 @@ maskedPoints.setBlendStates(state1_index, state2_index); // params are integer i
 ```
 
 **Settings**
+
 Look settings example at src/index.html.
 
 **Development**

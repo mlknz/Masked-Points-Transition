@@ -26,8 +26,8 @@
             backgroundColor: [0, 0, 0],
             pointsColor: [1, 1, 1],
 
-            pointsCount: 1000,
-            pointSizeMinMax: [1, 10],
+            pointsCount: 1500,
+            pointSizeMinMax: [0.5, 8],
             pointSizeDistMinMax: [1, 20],
 
             camera: {
@@ -43,13 +43,6 @@
             states: [
                 {
                     type: 'box',
-                    width: 3,
-                    height: 3,
-                    depth: 10,
-                    zDistance: 10
-                },
-                {
-                    type: 'box',
                     width: 10,
                     height: 10,
                     depth: 9,
@@ -57,59 +50,128 @@
                 },
                 {
                     type: 'box',
-                    width: 50,
-                    height: 50,
-                    depth: 1,
-                    zDistance: -1
+                    width: 4,
+                    height: 6,
+                    depth: 4,
+                    zDistance: 11
                 },
                 {
                     type: 'maskedBoxFromImage',
-                    // imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/test4.pbm',
-                    imageUrl: 'http://127.0.0.1:9000/assets/images/test4.pbm',
+                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/1.pbm',
+                    // imageUrl: 'http://127.0.0.1:9000/assets/images/1.pbm',
+                    width: 6,
+                    height: 6,
+                    depth: 0.1,
+                    zDistance: 14
+                },
+                {
+                    type: 'maskedBoxFromImage',
+                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/2.pbm',
+                    // imageUrl: 'http://127.0.0.1:9000/assets/images/2.pbm',
+                    width: 8,
+                    height: 8,
+                    depth: 0.1,
+                    zDistance: 12
+                },
+                {
+                    type: 'maskedBoxFromImage',
+                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/3.pbm',
+                    // imageUrl: 'http://127.0.0.1:9000/assets/images/3.pbm',
+                    width: 9,
+                    height: 9,
+                    depth: 0.1,
+                    zDistance: 10
+                },
+                {
+                    type: 'maskedBoxFromImage',
+                    imageUrl: 'https://mlknz.github.io/Masked-Points-Transition/assets/images/4.pbm',
+                    // imageUrl: 'http://127.0.0.1:9000/assets/images/4.pbm',
                     width: 10,
                     height: 10,
                     depth: 0.1,
-                    zDistance: 8
+                    zDistance: 10
                 },
                 {
                     type: 'maskedBoxFromMatrix',
                     matrix: [1, 1, 1, 0, 0, 1, 1, 0, 1],
                     matrixWidth: 3,
                     matrixHeight: 3,
-                    width: 10,
-                    height: 10,
+                    width: 9,
+                    height: 9,
                     depth: 0.1,
-                    zDistance: 8
+                    zDistance: 9
                 }
             ]
         };
         var transitions = [
             {
                 fromState: 0,
-                toState: 1,
-                startTime: 0,
-                endTime: 2
-            },
-            {
-                fromState: 1,
-                toState: 1,
-                startTime: 2,
-                endTime: 3
-            },
-            {
-                fromState: 1,
                 toState: 0,
-                startTime: 3,
-                endTime: 5
+                startTime: 0,
+                endTime: 0.5
+            },
+            {
+                fromState: 0,
+                toState: 2,
+                startTime: 0.5,
+                endTime: 1.8
+            },
+            {
+                fromState: 2,
+                toState: 2,
+                startTime: 1.8,
+                endTime: 2.2
+            },
+            {
+                fromState: 2,
+                toState: 3,
+                startTime: 2.2,
+                endTime: 2.7
+            },
+            {
+                fromState: 3,
+                toState: 3,
+                startTime: 2.7,
+                endTime: 3.4
+            },
+            {
+                fromState: 3,
+                toState: 4,
+                startTime: 3.4,
+                endTime: 3.9
+            },
+            {
+                fromState: 4,
+                toState: 4,
+                startTime: 3.9,
+                endTime: 4.1
+            },
+            {
+                fromState: 4,
+                toState: 5,
+                startTime: 4.1,
+                endTime: 4.6
+            },
+            {
+                fromState: 5,
+                toState: 5,
+                startTime: 4.6,
+                endTime: 6.5
+            },
+            {
+                fromState: 5,
+                toState: 0,
+                startTime: 6.5,
+                endTime: 9
             },
             {
                 fromState: 0,
                 toState: 0,
-                startTime: 5,
-                endTime: 6
-            }
+                startTime: 9,
+                endTime: 9.5
+            },
         ];
-        var totalLoopTime = 6, lt = 0, i, progress = 0, prev;
+        var totalLoopTime = 9.5, lt = 0, i, progress = 0, prev;
 
         if (window.maskedPoints && typeof window.maskedPoints.init === 'function') {
             var onMaskedPointsReady = function() {
@@ -121,8 +183,7 @@
             maskedPoints = window.maskedPoints.init(settings);
 
             var animate = function() {
-                time = (new Date()).getTime();
-                time = (time - Math.floor(time / 1000000) * 1000000) / 1000;
+                time = (new Date()).getTime() / 1000;
 
                 if (pointsReady) {
                     lt = (time - startTime) % totalLoopTime || 0;
@@ -140,7 +201,6 @@
                     }
 
                 }
-                // console.log(progress);
 
                 maskedPoints.updateCamera(time);
                 maskedPoints.updateBlendProgress(progress);
