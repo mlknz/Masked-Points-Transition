@@ -24,10 +24,9 @@ WebGL animated points module (3d).
 **API**
 
 ```javascript
-// expected settings format below
 var maskedPoints = window.maskedPoints.init(settings);
 document.addEventListener('maskedPointsReady', function() {
-    // initialization completed
+    // initialization completed.
 });
 
 maskedPoints.updateCamera(time); // if interactive camera is needed. time in seconds for inertia.
