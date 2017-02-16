@@ -5,7 +5,7 @@ WebGL animated points module (3d).
 **Features**
 
 1. *Points State* is a fixed set of points positions.
-2. Each *Points State* could be initialized with 
+2. Each *Points State* could be initialized with
  - Array of positions in 3d space (*rawData*).
  - Width, height, depth and zDistance of axis-aligned Box containing all points (*box*). Points are pseudo-randomly placed.
  - **Image mask in PBM binary format** + parameters of Box as in previous item (*maskedBoxFromImage*).
@@ -35,6 +35,8 @@ maskedPoints.updateBlendProgress(weight); // weight in [0, 1]
 maskedPoints.render(); // draws current state
 
 maskedPoints.setBlendStates(state1_index, state2_index); // params are integer indices as states go in settings.
+maskedPoints.setBackgroundColor([r, g, b]); // in [0, 1]
+maskedPoints.setPointsColor([r, g, b]); // in [0, 1]
 ```
 
 **Development**

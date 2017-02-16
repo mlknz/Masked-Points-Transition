@@ -7,7 +7,7 @@ let viewPerspectiveMatrixUniform, progressUniform;
 let dt, oldTime = 0;
 let targetX = 0, targetY = 0, curX = 0, curY = 0, dx, dy, norm, speedMult;
 let mouseInside = true, inertia = 1;
-let vertexBuffer, vertexBuffer2;
+let vertexBuffer, vertexBuffer2, colorUniform;
 
 class Points {
     constructor(gl, container, positions, settings) {
@@ -69,7 +69,7 @@ class Points {
         const pointSizeDistUniform = this.gl.getUniformLocation(this.shaderProgram, 'pointSizeDistMinMax');
         gl.uniform2f(pointSizeDistUniform, settings.pointSizeDistMinMax[0], settings.pointSizeDistMinMax[1]);
 
-        const colorUniform = this.gl.getUniformLocation(this.shaderProgram, 'color');
+        colorUniform = this.gl.getUniformLocation(this.shaderProgram, 'color');
         gl.uniform3f(colorUniform, settings.pointsColor[0], settings.pointsColor[1], settings.pointsColor[2]);
 
         this.resize();
@@ -168,6 +168,10 @@ class Points {
         gl.linkProgram(shaderProgram);
 
         return shaderProgram;
+    }
+
+    setColor(c) {
+        this.gl.uniform3f(colorUniform, c[0], c[1], c[2]);
     }
 
     updateProgress(t) {

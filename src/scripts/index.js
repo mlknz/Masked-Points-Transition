@@ -83,6 +83,16 @@ class App {
         if (self.points) self.points.updateProgress(t);
     }
 
+    setBackgroundColor(c) {
+        if (!c.length) throw new Error('Color array with length 3 is expected');
+        gl.clearColor(c[0], c[1], c[2], 1);
+    }
+
+    setPointsColor(c) {
+        if (!c.length) throw new Error('Color array with length 3 is expected');
+        if (self.points) self.points.setColor(c);
+    }
+
 }
 
 window.maskedPoints = {};
