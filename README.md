@@ -2,6 +2,8 @@
 
 WebGL animated points module (3d).
 
+![alt tag](https://cloud.githubusercontent.com/assets/12106426/23064247/fd4d4856-f51f-11e6-94b2-ab3ce41d359d.gif)
+
 **Features**
 
 1. *Points State* is a fixed set of points positions.
